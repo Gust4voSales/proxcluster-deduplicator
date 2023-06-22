@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from typing import Callable
-from modules.PhonexStaticBlocking import PhonexStaticBlocking 
 
 class CustomKmeans:
   # TODO proper typing
@@ -19,11 +18,16 @@ class CustomKmeans:
     self.distanceFn = distanceFn
     self.uID = uID
     self.threshold = threshold
-    self.clusters = {}
 
-  def __get_item_by_uID(self, uID):
-    item = self.df.loc[self.df[self.uID] == uID]
-    return item
+    self.clusters: dict[any, list[pd.Series]] | None = None
+
+  def __get_centroid_by_uID(self, uID):
+    # if clusters have been passed (incremental approach) get centroid from it
+    if self.clusters != None:
+      centroid_series = self.clusters[uID][0]
+      return pd.DataFrame([centroid_series.to_list()], columns=centroid_series.index.to_list())
+    
+    return self.df.loc[self.df[self.uID] == uID] # find item from data
   
   def __get_distance_to_all_centroids(self, el: pd.Series, centroids: pd.DataFrame):  
     distances = []
@@ -33,26 +37,29 @@ class CustomKmeans:
     return np.array(distances)
 
   def __custom_kmeans(self, centroids_uIDs: list):
-    centroids = pd.DataFrame(self.__get_item_by_uID(centroids_uIDs[0])) # getting the centroids rows by their uIDs
+    # getting the centroids rows by their uIDs
+    centroids = pd.concat((self.__get_centroid_by_uID(centroid) for centroid in centroids_uIDs)).reset_index() 
     
-    # clusters (É um dicionário, a chave do dicionário é o uID do centroide, seu valor é um array de items)
-    self.clusters = {key: [] for key in centroids_uIDs} # TODO stop using centroid uID as key?
+    # clusters (É um dicionário, a chave do dicionário é o uID do centroide, seu valor é um array de items pd.Series)
+    clusters: dict[any, list[pd.Series]] = self.clusters if self.clusters!=None else {key: [] for key in centroids_uIDs} 
 
-    for index, el in self.df.iterrows(): 
+    for _, el in self.df.iterrows(): 
       dists = self.__get_distance_to_all_centroids(el, centroids) # calculating the distance from the current element to the centroids, returns --> [distance_to_1st_cent, distance_to_2nd_cent]
       centroid_index_with_min_dist = np.argmin(dists)# get the index of the centroid with the minimum distance to the current element
 
       if (dists[centroid_index_with_min_dist] < self.threshold):
         min_centroid_uID = centroids_uIDs[centroid_index_with_min_dist] # get the centroid uID from the index  
-        self.clusters[min_centroid_uID].append(el) # Append the current element to that centroid
+        clusters[min_centroid_uID].append(el) # Append the current element to that centroid
       else:
         new_centroid_uID = el[self.uID]
-        centroids_uIDs.append(new_centroid_uID)
+        centroids_uIDs.append(new_centroid_uID)        
 
-        centroids.loc[index] = el # add current element as centroid 
-        self.clusters[new_centroid_uID] = [el] # Append the current element to that centroid
+        centroids.loc[len(centroids)] = el # add current element as centroid 
+        clusters[new_centroid_uID] = [el] # Append the current element to that centroid
 
-  def run(self, df: pd.DataFrame):
+    return clusters
+
+  def run(self, df: pd.DataFrame, clusters: dict | None = None):
     """
       TODO
     Args:
@@ -62,26 +69,17 @@ class CustomKmeans:
       cluster: ...
     """
     
-    # TODO receive incremental data with block_key
-
-    self.df = pd.concat([self.df, df])
-
-    # self.first_block_key_value = self.df.iloc[0][PhonexStaticBlocking.block_key]
-    # self.last_block_key_value = self.df.iloc[-1][PhonexStaticBlocking.block_key] 
+    self.df = df
 
     centroids_uIDs = []
-    if (len(self.clusters) == 0):
+    if (clusters == None):
       first_el = self.df.iloc[0]
-      centroids_uIDs = [ first_el[self.uID] ] # use first item as the first centroid
-      
-      self.first_block_key_value = self.df.iloc[0][PhonexStaticBlocking.block_key]
-      self.last_block_key_value = self.df.iloc[-1][PhonexStaticBlocking.block_key] 
+      centroids_uIDs = [ first_el[self.uID] ] # use first item as the first centroid      
     else: # incremental approach
-      centroids_uIDs = list(self.clusters.keys())
+      self.clusters = clusters
+      centroids_uIDs = list(clusters.keys())
       
+    clusters = self.__custom_kmeans(centroids_uIDs)
 
-    self.__custom_kmeans(centroids_uIDs)
-    blocks_keys = (self.first_block_key_value, self.last_block_key_value)
-
-    return self.clusters, blocks_keys
+    return clusters
   
