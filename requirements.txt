@@ -2,3 +2,4 @@ pandas
 numpy
 Levenshtein
 phonex
+fuzzy

@@ -38,7 +38,7 @@ class CustomKmeans:
 
   def __custom_kmeans(self, centroids_uIDs: list):
     # getting the centroids rows by their uIDs
-    centroids = pd.concat((self.__get_centroid_by_uID(centroid) for centroid in centroids_uIDs)).reset_index() 
+    centroids = pd.concat((self.__get_centroid_by_uID(centroid_uID) for centroid_uID in centroids_uIDs)).reset_index() 
     
     # clusters (É um dicionário, a chave do dicionário é o uID do centroide, seu valor é um array de items pd.Series)
     clusters: dict[any, list[pd.Series]] = self.clusters if self.clusters!=None else {key: [] for key in centroids_uIDs} 
