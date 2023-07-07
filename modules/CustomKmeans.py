@@ -70,6 +70,7 @@ class CustomKmeans:
     """
     
     self.df = df
+    self.clusters = None
 
     centroids_uIDs = []
     if (clusters == None):
