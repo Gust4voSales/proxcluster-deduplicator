@@ -56,7 +56,9 @@ class Evaluator:
     all_pairs = []
     for cluster_key in clusters.keys():
       cluster_items_pairs = self.__generate_clusters_pairs(clusters[cluster_key], uID)
-      print(cluster_items_pairs)
+      
+      if len(cluster_items_pairs)>0: print(cluster_items_pairs)
+
       all_pairs.extend(cluster_items_pairs)
 
       #  TP and FP computation
