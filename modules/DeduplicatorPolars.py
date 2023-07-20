@@ -1,8 +1,9 @@
 from modules.CustomKmeans import CustomKmeans
+from modules.CustomKmeansPolars import CustomKmeansPolars
 from modules.SoundexBlocking import SoundexBlocking
 from modules.Evaluator import Evaluator
 
-class Deduplicator:
+class DeduplicatorPolars:
   # TODO typing  
   def __init__(self, blocking_attr, distanceFn, uID, threshold):
     self.all_clusters = {} # TODO MEASURE TIME of updating this every loop (because this can be done later in the evaluation only)
@@ -11,7 +12,7 @@ class Deduplicator:
 
     self.uID = uID
     self.blocker = SoundexBlocking(blocking_attr)
-    self.customKmeans = CustomKmeans(distanceFn, uID, threshold)
+    self.customKmeans = CustomKmeansPolars(distanceFn, uID, threshold)
 
   def run(self, df):
     new_blocks = self.blocker.generate_blocks(df)   
