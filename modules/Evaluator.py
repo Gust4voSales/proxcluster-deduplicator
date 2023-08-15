@@ -84,4 +84,9 @@ class Evaluator:
   Precision: {precision}
   Recall: {recall}
   F-measure: {f_measure}
+
+  TP: {self.TP}
+  FP: {self.FP}
+  TN: {self.TN}
+  FN: {self.FN}
 '''

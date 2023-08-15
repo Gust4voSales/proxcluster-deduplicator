@@ -1,71 +1,81 @@
 import pandas as pd
-import polars as pl
 import numpy as np
 from typing import Callable
 
-
-class CustomKmeansPolars:
-  def __init__(self, distanceFn: Callable[[dict, dict], list[float]], uID_column: str, threshold=0.4):
+class ProxClusterPandas:
+  # TODO proper typing
+  def __init__(self, distanceFn: Callable[[], list[float]], uID: str, threshold=0.4):
     """
-    CustomKmeans initializer.
+    ProxCluster initializer.
 
     Args:
-      distanceFn ( (, ) -> float ): The distance function callback that receives the rows to compare and returns the distance.
+      df (pandas.DataFrame): The dataframe object with the rows to deduplicate.
+      distanceFn ( (pandas.Series, pandas.Series) -> float ): The distance function callback that receives the rows to compare and returns the distance.
       uID (str): The unique identifier to each item.
       threshold (float): The maximum distance threshold to identify a pair as duplicate. Defaults to 0.4.
     """
-    self.df = pl.DataFrame()
+    self.df = pd.DataFrame()
     self.distanceFn = distanceFn
-    self.uID_column = uID_column
+    self.uID = uID
     self.threshold = threshold
 
-    self.clusters: dict[any, list[dict]] | None = None
+    self.clusters: dict[any, list[pd.Series]] | None = None
 
   def __get_centroid_by_uID(self, uID):
     # if clusters have been passed (incremental approach) get centroid from it
     if self.clusters != None:
-      centroid = self.clusters[uID][0] # centroid is always the first item from the cluster
-      return pl.DataFrame(centroid) 
-   
-    return self.df.filter(pl.col(self.uID_column) == uID) # find item from data
+      centroid_series = self.clusters[uID][0]
+      return pd.DataFrame([centroid_series.to_list()], columns=centroid_series.index.to_list())
+    
+    return self.df.loc[self.df[self.uID] == uID] # find item from data
   
-  def __get_distance_to_all_centroids(self, el: dict, centroids: pl.DataFrame):  
+  def __get_distance_to_all_centroids(self, el: pd.Series, centroids: pd.DataFrame):  
     distances = []
-    for row in centroids.iter_rows(named=True):
+    for _, row in centroids.iterrows():
       distances.append(self.distanceFn(el, row))
       
     return np.array(distances)
 
   def __custom_kmeans(self, centroids_uIDs: list):
     # getting the centroids rows by their uIDs
-    centroids = pl.concat((self.__get_centroid_by_uID(centroid_uID) for centroid_uID in centroids_uIDs))
-    # clusters (É um dicionário, a chave do dicionário é o uID do centroide, seu valor é um array de items)
-    clusters: dict[any, list[dict]] = self.clusters if self.clusters!=None else {key: [] for key in centroids_uIDs} 
+    centroids = pd.concat((self.__get_centroid_by_uID(centroid_uID) for centroid_uID in centroids_uIDs)).reset_index() 
+    
+    # clusters (É um dicionário, a chave do dicionário é o uID do centroide, seu valor é um array de items pd.Series)
+    clusters: dict[any, list[pd.Series]] = self.clusters if self.clusters!=None else {key: [] for key in centroids_uIDs} 
 
-    for el in self.df.iter_rows(named=True):
+    for _, el in self.df.iterrows(): 
       dists = self.__get_distance_to_all_centroids(el, centroids) # calculating the distance from the current element to the centroids, returns --> [distance_to_1st_cent, distance_to_2nd_cent]
       centroid_index_with_min_dist = np.argmin(dists)# get the index of the centroid with the minimum distance to the current element
-      
+
       if (dists[centroid_index_with_min_dist] < self.threshold):
         min_centroid_uID = centroids_uIDs[centroid_index_with_min_dist] # get the centroid uID from the index  
         clusters[min_centroid_uID].append(el) # Append the current element to that centroid
       else:
-        new_centroid_uID = el[self.uID_column]
+        new_centroid_uID = el[self.uID]
         centroids_uIDs.append(new_centroid_uID)        
 
-        centroids = pl.concat([centroids, pl.DataFrame(el)])  # add current element as centroid 
+        centroids.loc[len(centroids)] = el # add current element as centroid 
         clusters[new_centroid_uID] = [el] # Append the current element to that centroid
 
     return clusters
-    
+
   def run(self, df: pd.DataFrame, clusters: dict | None = None):
-    self.df = pl.DataFrame(df)
+    """
+      TODO
+    Args:
+      ...
+
+    Returns:
+      cluster: ...
+    """
+    
+    self.df = df
     self.clusters = None
 
     centroids_uIDs = []
     if (clusters == None):
-      first_el_uID = self.df.select(pl.first(self.uID_column)).item()
-      centroids_uIDs = [ first_el_uID ] # use first item as the first centroid      
+      first_el = self.df.iloc[0]
+      centroids_uIDs = [ first_el[self.uID] ] # use first item as the first centroid      
     else: # incremental approach
       self.clusters = clusters
       centroids_uIDs = list(clusters.keys())
@@ -74,4 +84,3 @@ class CustomKmeansPolars:
 
     return clusters
   
-

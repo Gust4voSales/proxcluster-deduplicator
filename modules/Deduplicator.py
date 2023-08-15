@@ -1,16 +1,16 @@
-from modules.CustomKmeans import CustomKmeans
+from modules.ProxCluster import ProxCluster
 from modules.SoundexBlocking import SoundexBlocking
 from modules.Evaluator import Evaluator
 
 class Deduplicator:
- # TODO typing  
+  # TODO typing  
   def __init__(self, blocking_attr, distanceFn, uID, threshold):
     self.all_clusters = {} # TODO MEASURE TIME of updating this every loop (because this can be done later in the evaluation only)
     self.bkv_clusters_map = {} # mapping of blocking_key value to the clusters with that bkv
 
     self.uID = uID
     self.blocker = SoundexBlocking(blocking_attr)
-    self.customKmeans = CustomKmeans(distanceFn, uID, threshold)
+    self.prox_cluster = ProxCluster(distanceFn, uID, threshold)
 
   def run(self, df):
     new_blocks = self.blocker.generate_blocks(df)
@@ -20,12 +20,11 @@ class Deduplicator:
       clusterized_block = self.bkv_clusters_map.get(blocking_key_value)
       
       if clusterized_block is not None:  # found clusters with same blocking key valeu, do Incrementally
-        clusters = self.customKmeans.run(block, clusterized_block)
-        self.bkv_clusters_map[blocking_key_value] = clusters
+        clusters = self.prox_cluster.run(block, clusterized_block)
       else: # new blocking key valeu
-        clusters = self.customKmeans.run(block)
-        self.bkv_clusters_map[blocking_key_value] = clusters
-      
+        clusters = self.prox_cluster.run(block)
+
+      self.bkv_clusters_map[blocking_key_value] = clusters
       self.all_clusters.update(clusters)
 
     return self.all_clusters
