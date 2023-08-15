@@ -1,0 +1,7 @@
+PAGINA DO PROJETO: https://hpi.de/naumann/projects/data-integration-data-quality-and-data-cleansing/dude.html
+
+ARTIGO: https://hpi.de/fileadmin/user_upload/fachgebiete/naumann/publications/2010/DuDe_-_The_Duplicate_Detection_Toolkit_cr.pdf
+
+HOW-TO GUIA: https://nextcloud.hpi.de/s/2Sj8kCPzjCm6Zoq
+
+
