@@ -44,3 +44,4 @@ class Deduplicator:
     evaluator.calculate_metrics(self.all_clusters, golden_standard_array, self.uID, debug)
 
     print(evaluator.get_report()) 
+    print("Comparações: ", self.prox_cluster.comparisons)

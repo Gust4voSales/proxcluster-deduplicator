@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import de.hpi.fgis.dude.algorithm.Algorithm;
@@ -14,10 +16,10 @@ import de.hpi.fgis.dude.util.sorting.sortingkey.TextBasedSubkey;
 import de.hpi.fgis.dude.similarityfunction.aggregators.Aggregator;
 import de.hpi.fgis.dude.similarityfunction.aggregators.Average;
 
+
 public class dude {
   
   public static void main(String[] args) throws Exception {
-    // CSVSource source = new CSVSource("cddb", new File("../../../../datasets/cd_information", "cd.csv"));
     CSVSource source = new CSVSource("cddb", new File("./experiments/proxcluster_vs_dude/DuDe/src", "cd.csv"));
     source.enableHeader();
 
@@ -46,24 +48,59 @@ public class dude {
 
     //  DuDeOutput output = new JsonOutput(new FileOutputStream("./src/duplicates.json"));
     int comparisonsCounter = 0;
-    ArrayList<Double> simis = new ArrayList<>();
-    ArrayList<String[]> pairsList = new ArrayList<>();
+    ArrayList<Integer[]> pairsList = new ArrayList<>(); 
     for (DuDeObjectPair pair: algorithm) {
       final double similarity = comparator.getSimilarity(pair);
+      comparisonsCounter++;
 
       if (similarity > 0.75) {
-        String[] pairIDs = {pair.getFirstElement().getAttributeValue("pk").toString(), pair.getSecondElement().getAttributeValue("pk").toString()};
+        int firstPairID = Integer.parseInt(pair.getFirstElement().getAttributeValue("pk").toString());
+        int secondPairID = Integer.parseInt(pair.getSecondElement().getAttributeValue("pk").toString());
+        Integer[] pairIDs = {firstPairID,secondPairID};
         pairsList.add(pairIDs);
-        comparisonsCounter++;
-        simis.add(similarity);
-        // System.out.println(similarity);
+        
         // output.write(pair);
       }
     }
     System.out.println(comparisonsCounter);
-    // System.out.println(pairsList.get(0)[0]);
-    // System.out.println(pairsList.get(0)[1]);
-    // System.out.println(simis.get(0));
+    
     algorithm.cleanUp();
+
+    // Convert ArrayList to a JSON-formatted string
+    String jsonString = arrayListToJson(pairsList);
+
+    // Save the JSON string to a file
+    try {
+        FileWriter fileWriter = new FileWriter("./experiments/proxcluster_vs_dude/DuDe/dude_pairs.json");
+        fileWriter.write(jsonString);
+        fileWriter.close();
+        System.out.println("ArrayList saved to JSON file successfully.");
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+  }
+
+  // Convert ArrayList to JSON-formatted string manually
+  private static String arrayListToJson(ArrayList<Integer[]> arrayList) {
+    StringBuilder jsonBuilder = new StringBuilder();
+    jsonBuilder.append("[");
+    
+    for (Integer[] item : arrayList) {
+        jsonBuilder.append("[");
+        for (int i = 0; i < item.length; i++) {
+            jsonBuilder.append(item[i]);
+            if (i < item.length - 1) {
+                jsonBuilder.append(",");
+            }
+        }
+        jsonBuilder.append("]");
+        
+        if (item != arrayList.get(arrayList.size() - 1)) {
+            jsonBuilder.append(",");
+        }
+    }
+    
+    jsonBuilder.append("]");
+    return jsonBuilder.toString();
   }
 }

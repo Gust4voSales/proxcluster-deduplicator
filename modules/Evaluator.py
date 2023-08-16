@@ -75,6 +75,21 @@ class Evaluator:
     
     # return self.TP, self.FP, self.TN, self.FN
 
+  def calculate_metrics_with_pairs(self, pairs, golden_standard_array):
+    #  TP and FP computation
+    for pair in pairs:
+      if pair in golden_standard_array or self.__invert_pair(pair) in golden_standard_array:
+        self.TP += 1
+      else:
+        self.FP += 1
+
+    # FN computation
+    for answer in golden_standard_array:
+      if answer not in pairs and self.__invert_pair(answer) not in pairs:
+        self.FN += 1
+    
+    # return self.TP, self.FP, self.TN, self.FN
+
   def get_report(self):
     precision = self.get_precision()
     recall = self.get_recall()

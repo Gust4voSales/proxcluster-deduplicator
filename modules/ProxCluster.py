@@ -18,6 +18,7 @@ class ProxCluster:
     self.distanceFn = distanceFn
     self.uID_column = uID_column
     self.threshold = threshold
+    self.comparisons = 0
 
     self.clusters: dict[any, list[dict]] | None = None
 
@@ -43,6 +44,7 @@ class ProxCluster:
     clusters: dict[any, list[dict]] = self.clusters if self.clusters!=None else {key: [] for key in centroids_uIDs} 
 
     for el in self.df.iter_rows(named=True):
+      self.comparisons += len(centroids)
       dists = self.__get_distance_to_all_centroids(el, centroids) # calculating the distance from the current element to the centroids, returns --> [distance_to_1st_cent, distance_to_2nd_cent]
       centroid_index_with_min_dist = np.argmin(dists)# get the index of the centroid with the minimum distance to the current element
       
