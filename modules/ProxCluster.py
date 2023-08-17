@@ -55,7 +55,7 @@ class ProxCluster:
         new_centroid_uID = el[self.uID_column]
         centroids_uIDs.append(new_centroid_uID)        
 
-        centroids = pl.concat([centroids, pl.DataFrame(el)])  # add current element as centroid 
+        centroids = pl.concat([centroids, pl.DataFrame(el)] )  # add current element as centroid 
         clusters[new_centroid_uID] = [el] # Append the current element to that centroid
 
     return clusters
