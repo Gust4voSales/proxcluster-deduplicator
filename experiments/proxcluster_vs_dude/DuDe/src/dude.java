@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import de.hpi.fgis.dude.algorithm.Algorithm;
 // import de.hpi.fgis.dude.algorithm.duplicatedetection.SortedNeighborhoodMethod;
-// import de.hpi.fgis.dude.algorithm.duplicatedetection.NaiveDuplicateDetection;
 import de.hpi.fgis.dude.algorithm.duplicatedetection.NaiveBlockingAlgorithm;
 import de.hpi.fgis.dude.datasource.CSVSource;
 import de.hpi.fgis.dude.similarityfunction.contentbased.impl.simmetrics.LevenshteinDistanceFunction;
