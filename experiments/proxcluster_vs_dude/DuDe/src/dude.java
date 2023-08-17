@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import de.hpi.fgis.dude.algorithm.Algorithm;
-import de.hpi.fgis.dude.algorithm.duplicatedetection.SortedNeighborhoodMethod;
+// import de.hpi.fgis.dude.algorithm.duplicatedetection.SortedNeighborhoodMethod;
+// import de.hpi.fgis.dude.algorithm.duplicatedetection.NaiveDuplicateDetection;
+import de.hpi.fgis.dude.algorithm.duplicatedetection.NaiveBlockingAlgorithm;
 import de.hpi.fgis.dude.datasource.CSVSource;
 import de.hpi.fgis.dude.similarityfunction.contentbased.impl.simmetrics.LevenshteinDistanceFunction;
 import de.hpi.fgis.dude.util.data.DuDeObjectPair;
@@ -25,7 +27,8 @@ public class dude {
     SortingKey sortKey = new SortingKey();
     sortKey.addSubkey(titleSubkey);
     // new SNM algorithm with window size 20 and
-    Algorithm algorithm = new SortedNeighborhoodMethod(sortKey, 20);
+    // Algorithm algorithm = new SortedNeighborhoodMethod(sortKey, 20);
+    Algorithm algorithm = new NaiveBlockingAlgorithm(sortKey);
     algorithm.enableInMemoryProcessing();
     algorithm.addDataSource(source);
 
