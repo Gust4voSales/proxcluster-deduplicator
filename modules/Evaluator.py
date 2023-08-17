@@ -23,7 +23,7 @@ class Evaluator:
     pairs = []
     for i in range(len(cluster)):
       for j in range(i+1, len(cluster)):
-        pairs.append([ cluster[i][uID], cluster[j][uID] ])
+        pairs.append(( cluster[i][uID], cluster[j][uID] ))
     return pairs
 
   def __invert_pair(self, pair):

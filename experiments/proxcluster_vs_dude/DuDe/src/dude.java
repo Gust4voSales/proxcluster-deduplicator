@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,13 +6,10 @@ import java.util.ArrayList;
 import de.hpi.fgis.dude.algorithm.Algorithm;
 import de.hpi.fgis.dude.algorithm.duplicatedetection.SortedNeighborhoodMethod;
 import de.hpi.fgis.dude.datasource.CSVSource;
-import de.hpi.fgis.dude.output.DuDeOutput;
-import de.hpi.fgis.dude.output.JsonOutput;
 import de.hpi.fgis.dude.similarityfunction.contentbased.impl.simmetrics.LevenshteinDistanceFunction;
 import de.hpi.fgis.dude.util.data.DuDeObjectPair;
 import de.hpi.fgis.dude.util.sorting.sortingkey.SortingKey;
 import de.hpi.fgis.dude.util.sorting.sortingkey.TextBasedSubkey;
-import de.hpi.fgis.dude.similarityfunction.aggregators.Aggregator;
 import de.hpi.fgis.dude.similarityfunction.aggregators.Average;
 
 
@@ -33,20 +29,18 @@ public class dude {
     algorithm.enableInMemoryProcessing();
     algorithm.addDataSource(source);
 
+    long startTime = System.currentTimeMillis();
+    
     LevenshteinDistanceFunction titleComp = new LevenshteinDistanceFunction("title");
     LevenshteinDistanceFunction artComp = new LevenshteinDistanceFunction("artist");
     LevenshteinDistanceFunction trackComp = new LevenshteinDistanceFunction("track01");
 
     Average comparator = new Average();
     
-    // comparator.add(titleComp, 3);
-    // comparator.add(artComp, 2);
-    // comparator.add(trackComp, 1);
     comparator.add(titleComp);
     comparator.add(artComp);
     comparator.add(trackComp);
 
-    //  DuDeOutput output = new JsonOutput(new FileOutputStream("./src/duplicates.json"));
     int comparisonsCounter = 0;
     ArrayList<Integer[]> pairsList = new ArrayList<>(); 
     for (DuDeObjectPair pair: algorithm) {
@@ -58,13 +52,14 @@ public class dude {
         int secondPairID = Integer.parseInt(pair.getSecondElement().getAttributeValue("pk").toString());
         Integer[] pairIDs = {firstPairID,secondPairID};
         pairsList.add(pairIDs);
-        
-        // output.write(pair);
       }
     }
-    System.out.println(comparisonsCounter);
-    
     algorithm.cleanUp();
+    long endTime = System.currentTimeMillis();
+
+    System.out.println("Comparisons: " + comparisonsCounter);
+    System.out.println("Time: " + (endTime - startTime));
+    
 
     // Convert ArrayList to a JSON-formatted string
     String jsonString = arrayListToJson(pairsList);
