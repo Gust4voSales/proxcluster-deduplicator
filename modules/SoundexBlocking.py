@@ -33,22 +33,6 @@ class SoundexBlocking:
     
     return blocks
   
-  def merge_blocks(self, bigger_blocks, incremental_blocks):
-    for block in incremental_blocks:
-      item = block.iloc[0]
-
-      found_block = False
-      for i, block_to_compare in enumerate(bigger_blocks):
-        if block_to_compare.iloc[0][SoundexBlocking.blocking_key] == item[SoundexBlocking.blocking_key]:
-          bigger_blocks[i] = pd.concat([bigger_blocks[i], block], axis=0).reset_index(drop=True)
-          found_block = True
-          break
-      
-      if not found_block:
-        bigger_blocks.append(block)
-    
-    return bigger_blocks
-    
   def get_row_block_index(self, row: pd.Series, blocks):
     for i, block in enumerate(blocks):
       item = block.iloc[0]

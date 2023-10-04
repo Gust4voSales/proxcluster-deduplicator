@@ -1,4 +1,4 @@
-# DataMatching 179 
+# DataMatching book, page 179 
 
 class Evaluator:
   def __init__(self):
@@ -18,7 +18,6 @@ class Evaluator:
   to properly assess matching quality
   '''
 
-  # TODO typing
   def __generate_clusters_pairs(self, cluster, uID):
     pairs = []
     for i in range(len(cluster)):
@@ -50,8 +49,6 @@ class Evaluator:
     except ZeroDivisionError: 
       return 0
   
-  # TODO: typing and TN (even though it won't be useful)
-  # calculate TP, FP, TN, FN
   def calculate_metrics(self, clusters, golden_standard_array, uID, debug=False):
     all_pairs = []
     for cluster_key in clusters.keys():

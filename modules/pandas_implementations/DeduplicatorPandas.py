@@ -5,7 +5,7 @@ from modules.Evaluator import Evaluator
 class DeduplicatorPandas:
  # TODO typing  
   def __init__(self, blocking_attr, distanceFn, uID, threshold):
-    self.all_clusters = {} # TODO MEASURE TIME of updating this every loop (because this can be done later in the evaluation only)
+    self.all_clusters = {} 
     self.bkv_clusters_map = {} # mapping of blocking_key value to the clusters with that bkv
 
     self.uID = uID
@@ -35,7 +35,7 @@ class DeduplicatorPandas:
       for cluster_key in block_clusters.keys():
         print('>>>> CLUSTER: ' , cluster_key)
         for i, item in enumerate(block_clusters[cluster_key]):
-          print('>>>> ',item['pk'], item['title'], item['artist'],  )
+          print('>>>> ',item)
         print()
       print('-'*100)
 
