@@ -6,13 +6,15 @@ ProxCluster
 ProxCluster is a modularized framework for
 Incremental Entity Resolution that leverages concepts similar to the K-Means algorithm to cluster the duplicates found. This work was developed as the final paper for my Bachelor degree in Computer Science - UFAPE.
 </p>
-👉Undergraduate thesis: TODO add link
+👉Undergraduate thesis: https://github.com/Gust4voSales/proxcluster-deduplicator/blob/main/.github/ProxCluster-TCC.pdf
 
 ## 🔎 Overview
 
-<div style="display: flex">
+<div align="center">
 <img src=".github/proxcluster-diagram.png" alt="landing" width="500px"> 
-<div style="margin-left: 10px">
+
+<details>
+  <summary>English legend</summary>
   <sup><b>1</b>: Block records</sup> <br />
   <sup><b>2</b>: Return blocks</sup> <br />
   <sup><b>3</b>: IF there is any clusters with the same blocking key value (BKV)</sup> <br />
@@ -22,8 +24,8 @@ Incremental Entity Resolution that leverages concepts similar to the K-Means alg
   <sup><b>7</b>: Statically cluster the block</sup> <br />
   <sup><b>8</b>: Evaluate clusters</sup> <br />
   <sup><b>9</b>: Return performance</sup> <br />
+</details>
 </div>
- </div>
 
 <p style="margin-top: 20px; text-align: justify;">
 ProxCluster is divided into 3 modules.
